@@ -124,6 +124,14 @@ st.markdown(
         margin-bottom: 0.9rem;
     }
 
+    .section-header {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-top: 1rem;
+        margin-bottom: 0.45rem;
+        line-height: 1.2;
+    }
+
     .section-note {
         font-size: 0.94rem;
         opacity: 0.9;
@@ -205,7 +213,6 @@ EMAIL_NADAWCA = get_secret("EMAIL_NADAWCA")
 HASLO_APLIKACJI = get_secret("HASLO_APLIKACJI")
 EMAIL_ODBIORCA1 = get_secret("EMAIL_ODBIORCA1")
 EMAIL_ODBIORCA2 = get_secret("EMAIL_ODBIORCA2")
-
 
 # =========================================================
 # KONFIGURACJA MEDYCZNA
@@ -564,7 +571,6 @@ FAMILY_DISEASES = [
     "Otyłość",
 ]
 
-
 # =========================================================
 # FUNKCJE POMOCNICZE
 # =========================================================
@@ -747,6 +753,8 @@ def add_pdf_section(story, title: str, rows: List[str], styles_dict):
 
 
 def get_symptom_item(system_name: str, symptom_name: str) -> Dict[str, Any]:
+    if symptom_name == "Inne objawy":
+        return {"name": symptom_name, "weight": 1, "alarm": False}
     for item in SYMPTOM_GROUPS[system_name]:
         if item["name"] == symptom_name:
             return item
@@ -779,18 +787,30 @@ def build_symptom_rows(
             pattern = detail.get("pattern", "")
             worse = detail.get("worse", "")
             better = detail.get("better", "")
+            typed_other = detail.get("typed_other", "")
 
             weighted = float(meta.get("weight", 1)) * INTENSITY_WEIGHT.get(intensity, 1.0)
             score_sum += weighted
 
-            line = (
-                f"• {symptom_name}"
-                f" | nasilenie: {intensity}"
-                f"{f' | od: {since}' if since else ''}"
-                f"{f' | charakter: {pattern}' if pattern else ''}"
-                f"{f' | nasila: {worse}' if worse else ''}"
-                f"{f' | zmniejsza: {better}' if better else ''}"
-            )
+            if symptom_name == "Inne objawy":
+                line = (
+                    f"• Inne objawy: {typed_other}"
+                    f"{f' | nasilenie: {intensity}' if intensity else ''}"
+                    f"{f' | od: {since}' if since else ''}"
+                    f"{f' | charakter: {pattern}' if pattern else ''}"
+                    f"{f' | nasila: {worse}' if worse else ''}"
+                    f"{f' | zmniejsza: {better}' if better else ''}"
+                )
+            else:
+                line = (
+                    f"• {symptom_name}"
+                    f" | nasilenie: {intensity}"
+                    f"{f' | od: {since}' if since else ''}"
+                    f"{f' | charakter: {pattern}' if pattern else ''}"
+                    f"{f' | nasila: {worse}' if worse else ''}"
+                    f"{f' | zmniejsza: {better}' if better else ''}"
+                )
+
             system_rows.append(line)
 
             if meta.get("alarm"):
@@ -1141,83 +1161,134 @@ with st.expander("3. Chronologia zdrowia i leki", expanded=False):
 # =========================================================
 # 4. OBJAWY WEDŁUG UKŁADÓW
 # =========================================================
-st.markdown("### 4. Objawy według układów")
-st.markdown("<div class='section-note'>Zaznacz tylko objawy obecne lub nawracające. Po zaznaczeniu objawu uzupełnij krótki opis.</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-header'>Objawy według układów</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='section-note'>Zaznacz tylko objawy obecne lub nawracające. Po zaznaczeniu objawu uzupełnij krótki opis.</div>",
+    unsafe_allow_html=True,
+)
 
 selected_symptoms: Dict[str, List[str]] = {}
 symptom_details: Dict[str, Dict[str, Any]] = {}
 
 for system_name, items in SYMPTOM_GROUPS.items():
-    with st.expander(system_name, expanded=False):
+    expander_open = len(st.session_state.get(f"symptoms_{system_name}", [])) > 0 or bool(
+        st.session_state.get(f"other_{system_name}", "").strip()
+    )
+
+    with st.expander(system_name, expanded=expander_open):
         options = [item["name"] for item in items]
+
         chosen = st.multiselect(
             f"Zaznacz objawy dotyczące układu: {system_name}",
             options,
             key=f"symptoms_{system_name}",
             placeholder="Wybierz objawy",
         )
-        selected_symptoms[system_name] = chosen
-
-        if chosen:
-            st.markdown("#### Szczegóły zaznaczonych objawów")
-            for symptom_name in chosen:
-                detail_key = f"{system_name}__{symptom_name}"
-                meta = get_symptom_item(system_name, symptom_name)
-                alarm_badge = " <span class='alarm-chip'>objaw alarmowy</span>" if meta.get("alarm") else ""
-
-                st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
-                st.markdown(f"**{symptom_name}**{alarm_badge}", unsafe_allow_html=True)
-
-                intensity = st.selectbox(
-                    f"Nasilenie: {symptom_name}",
-                    INTENSITY_OPTIONS,
-                    key=f"intensity_{detail_key}",
-                )
-                pattern = st.selectbox(
-                    f"Charakter: {symptom_name}",
-                    PATTERN_OPTIONS,
-                    key=f"pattern_{detail_key}",
-                )
-                since = st.text_input(
-                    f"Od kiedy trwa: {symptom_name}",
-                    key=f"since_{detail_key}",
-                    placeholder="np. 3 miesiące, od stycznia 2025",
-                )
-                worse = st.text_input(
-                    f"Co nasila: {symptom_name}",
-                    key=f"worse_{detail_key}",
-                    placeholder="np. wysiłek, noc, po posiłku",
-                )
-                better = st.text_input(
-                    f"Co zmniejsza: {symptom_name}",
-                    key=f"better_{detail_key}",
-                    placeholder="np. odpoczynek, leki, pozycja siedząca",
-                )
-
-                st.markdown("</div>", unsafe_allow_html=True)
-
-                symptom_details[detail_key] = {
-                    "intensity": intensity,
-                    "pattern": pattern,
-                    "since": since.strip(),
-                    "worse": worse.strip(),
-                    "better": better.strip(),
-                }
+        selected_symptoms[system_name] = list(chosen)
 
         other_text = st.text_area(
             f"Inne objawy z układu: {system_name}",
             key=f"other_{system_name}",
             height=80,
+            placeholder="Wpisz inne objawy, jeśli nie ma ich na liście",
         )
+
+        if chosen:
+            st.markdown("#### Szczegóły zaznaczonych objawów")
+
+        for symptom_name in chosen:
+            detail_key = f"{system_name}__{symptom_name}"
+            meta = get_symptom_item(system_name, symptom_name)
+            alarm_badge = " <span class='alarm-chip'>objaw alarmowy</span>" if meta.get("alarm") else ""
+
+            st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
+            st.markdown(f"**{symptom_name}**{alarm_badge}", unsafe_allow_html=True)
+
+            intensity = st.radio(
+                f"Nasilenie: {symptom_name}",
+                INTENSITY_OPTIONS,
+                key=f"intensity_{detail_key}",
+                horizontal=True,
+            )
+            pattern = st.radio(
+                f"Charakter: {symptom_name}",
+                PATTERN_OPTIONS,
+                key=f"pattern_{detail_key}",
+                horizontal=True,
+            )
+            since = st.text_input(
+                f"Od kiedy trwa: {symptom_name}",
+                key=f"since_{detail_key}",
+                placeholder="np. 3 miesiące, od stycznia 2025",
+            )
+            worse = st.text_input(
+                f"Co nasila: {symptom_name}",
+                key=f"worse_{detail_key}",
+                placeholder="np. wysiłek, noc, po posiłku",
+            )
+            better = st.text_input(
+                f"Co zmniejsza: {symptom_name}",
+                key=f"better_{detail_key}",
+                placeholder="np. odpoczynek, leki, pozycja siedząca",
+            )
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+            symptom_details[detail_key] = {
+                "intensity": intensity,
+                "pattern": pattern,
+                "since": since.strip(),
+                "worse": worse.strip(),
+                "better": better.strip(),
+            }
+
         if other_text.strip():
             if "Inne objawy" not in selected_symptoms[system_name]:
                 selected_symptoms[system_name].append("Inne objawy")
-            symptom_details[f"{system_name}__Inne objawy"] = {
-                "intensity": "umiarkowane",
-                "pattern": "trudno powiedzieć",
-                "since": "",
-                "worse": "",
-                "better": other_text.strip(),
+
+            detail_key = f"{system_name}__Inne objawy"
+
+            st.markdown("#### Szczegóły innych objawów")
+            st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
+            st.markdown("**Inne objawy**", unsafe_allow_html=True)
+
+            other_intensity = st.radio(
+                f"Nasilenie: inne objawy ({system_name})",
+                INTENSITY_OPTIONS,
+                key=f"intensity_{detail_key}",
+                horizontal=True,
+            )
+            other_pattern = st.radio(
+                f"Charakter: inne objawy ({system_name})",
+                PATTERN_OPTIONS,
+                key=f"pattern_{detail_key}",
+                horizontal=True,
+            )
+            other_since = st.text_input(
+                f"Od kiedy trwają: inne objawy ({system_name})",
+                key=f"since_{detail_key}",
+                placeholder="np. od kilku tygodni",
+            )
+            other_worse = st.text_input(
+                f"Co nasila: inne objawy ({system_name})",
+                key=f"worse_{detail_key}",
+                placeholder="np. wysiłek, stres",
+            )
+            other_better = st.text_input(
+                f"Co zmniejsza: inne objawy ({system_name})",
+                key=f"better_{detail_key}",
+                placeholder="np. odpoczynek, leki",
+            )
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+            symptom_details[detail_key] = {
+                "intensity": other_intensity,
+                "pattern": other_pattern,
+                "since": other_since.strip(),
+                "worse": other_worse.strip(),
+                "better": other_better.strip(),
+                "typed_other": other_text.strip(),
             }
 
 # =========================================================
