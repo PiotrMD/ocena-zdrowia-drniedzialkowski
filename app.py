@@ -37,6 +37,14 @@ st.markdown(
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
+    html, body, [class*="css"] {
+        background-color: #f5f7fb;
+    }
+
+    .stApp {
+        background: #f5f7fb;
+    }
+
     .main .block-container {
         max-width: 980px;
         padding-top: 0.65rem;
@@ -46,9 +54,10 @@ st.markdown(
     .top-card {
         padding: 18px 18px;
         border-radius: 18px;
-        border: 1px solid rgba(120,120,120,0.22);
+        border: 1px solid #d7deea;
         margin-bottom: 16px;
-        background: rgba(250,250,250,0.03);
+        background: #ffffff;
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
     }
 
     .title-main {
@@ -58,6 +67,7 @@ st.markdown(
         letter-spacing: 0.03em;
         margin-top: 0.1rem;
         margin-bottom: 0.1rem;
+        color: #123b6d;
     }
 
     .title-sub {
@@ -66,6 +76,7 @@ st.markdown(
         font-weight: 700;
         margin-top: 0;
         margin-bottom: 0.35rem;
+        color: #264d7f;
     }
 
     .doctor-line {
@@ -73,6 +84,7 @@ st.markdown(
         font-size: 1rem;
         margin-top: 0;
         margin-bottom: 0.4rem;
+        color: #334155;
     }
 
     .site-line {
@@ -81,6 +93,7 @@ st.markdown(
         margin-top: 0;
         margin-bottom: 0.2rem;
         font-weight: 700;
+        color: #123b6d;
     }
 
     .contact-line {
@@ -88,15 +101,16 @@ st.markdown(
         font-size: 0.95rem;
         margin-top: 0;
         margin-bottom: 1rem;
+        color: #475569;
     }
 
     .progress-box {
         padding: 12px 14px;
         border-radius: 14px;
-        border: 1px solid rgba(120,120,120,0.22);
+        border: 1px solid #d7deea;
         margin-top: 6px;
         margin-bottom: 16px;
-        background: rgba(250,250,250,0.02);
+        background: #ffffff;
     }
 
     .send-button > button {
@@ -105,6 +119,14 @@ st.markdown(
         font-size: 1.05rem;
         font-weight: 700;
         border-radius: 12px;
+        background: #1d4ed8;
+        color: white;
+        border: none;
+    }
+
+    .send-button > button:hover {
+        background: #1e40af;
+        color: white;
     }
 
     .field-anchor {
@@ -118,7 +140,7 @@ st.markdown(
         border-radius: 10px;
         padding: 10px 12px;
         color: #d93025;
-        background: rgba(217, 48, 37, 0.06);
+        background: #fff1f0;
         font-weight: 600;
         margin-top: -0.15rem;
         margin-bottom: 0.9rem;
@@ -126,7 +148,7 @@ st.markdown(
 
     .section-note {
         font-size: 0.94rem;
-        opacity: 0.9;
+        color: #475569;
         margin-top: -0.1rem;
         margin-bottom: 0.7rem;
     }
@@ -143,18 +165,13 @@ st.markdown(
         margin-left: 8px;
     }
 
-    .summary-card {
-        border: 1px solid rgba(120,120,120,0.22);
-        border-radius: 16px;
-        padding: 14px 16px;
+    .symptom-card {
+        border: 1px solid #dbe4f0;
+        background: #f8fbff;
+        border-radius: 14px;
+        padding: 12px;
+        margin-top: 10px;
         margin-bottom: 14px;
-        background: rgba(250,250,250,0.03);
-    }
-
-    .summary-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 8px;
     }
 
     .alarm-box {
@@ -164,6 +181,13 @@ st.markdown(
         border-radius: 14px;
         padding: 12px 14px;
         margin-top: 8px;
+        margin-bottom: 12px;
+    }
+
+    div[data-testid="stExpander"] {
+        background: #ffffff;
+        border: 1px solid #d7deea;
+        border-radius: 14px;
         margin-bottom: 12px;
     }
 
@@ -185,6 +209,11 @@ st.markdown(
         .doctor-line, .site-line, .contact-line {
             font-size: 0.9rem;
         }
+
+        .symptom-card {
+            padding: 10px;
+            border-radius: 12px;
+        }
     }
     </style>
     """,
@@ -205,6 +234,7 @@ EMAIL_NADAWCA = get_secret("EMAIL_NADAWCA")
 HASLO_APLIKACJI = get_secret("HASLO_APLIKACJI")
 EMAIL_ODBIORCA1 = get_secret("EMAIL_ODBIORCA1")
 EMAIL_ODBIORCA2 = get_secret("EMAIL_ODBIORCA2")
+
 
 # =========================================================
 # KONFIGURACJA MEDYCZNA
@@ -563,6 +593,7 @@ FAMILY_DISEASES = [
     "Otyłość",
 ]
 
+
 # =========================================================
 # FUNKCJE POMOCNICZE
 # =========================================================
@@ -608,10 +639,7 @@ def validate_phone(raw: str) -> Optional[str]:
     if not text:
         return None
     cleaned = text.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
-    if cleaned.startswith("+"):
-        digits = cleaned[1:]
-    else:
-        digits = cleaned
+    digits = cleaned[1:] if cleaned.startswith("+") else cleaned
     if not digits.isdigit():
         return None
     if len(digits) < 7 or len(digits) > 15:
@@ -627,22 +655,6 @@ def validate_email(raw: str) -> Optional[str]:
     if not re.match(pattern, text):
         return None
     return text
-
-
-def parse_polish_date(text: str) -> Optional[date]:
-    raw = (text or "").strip()
-    if not raw:
-        return None
-    formats = ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
-    for fmt in formats:
-        try:
-            parsed = datetime.strptime(raw, fmt).date()
-            if parsed < date(1900, 1, 1) or parsed > date.today():
-                return None
-            return parsed
-        except ValueError:
-            continue
-    return None
 
 
 def parse_optional_float(raw: str) -> Optional[float]:
@@ -770,30 +782,6 @@ def get_symptom_item(system_name: str, symptom_name: str) -> Dict[str, Any]:
     return {"name": symptom_name, "weight": 1, "alarm": False}
 
 
-def compute_live_symptom_stats(
-    selected_symptoms: Dict[str, List[str]],
-    symptom_details: Dict[str, Dict[str, Any]],
-) -> Tuple[Dict[str, float], List[str]]:
-    system_scores: Dict[str, float] = {}
-    alarm_list: List[str] = []
-
-    for system_name, chosen_list in selected_symptoms.items():
-        score_sum = 0.0
-        for symptom_name in chosen_list:
-            meta = get_symptom_item(system_name, symptom_name)
-            detail_key = f"{system_name}__{symptom_name}"
-            detail = symptom_details.get(detail_key, {})
-            intensity = detail.get("intensity", "lekkie")
-            weighted = float(meta.get("weight", 1)) * INTENSITY_WEIGHT.get(intensity, 1.0)
-            score_sum += weighted
-            if meta.get("alarm"):
-                alarm_list.append(f"{system_name}: {symptom_name}")
-        if score_sum > 0:
-            system_scores[system_name] = round(score_sum, 1)
-
-    return system_scores, alarm_list
-
-
 def build_symptom_rows(
     selected_symptoms: Dict[str, List[str]],
     symptom_details: Dict[str, Dict[str, Any]],
@@ -801,13 +789,14 @@ def build_symptom_rows(
     detailed_rows: List[str] = []
     alarm_rows: List[str] = []
     summary_rows: List[str] = []
-    system_scores, _ = compute_live_symptom_stats(selected_symptoms, symptom_details)
+    system_scores: Dict[str, float] = {}
 
     for system_name, chosen_list in selected_symptoms.items():
         if not chosen_list:
             continue
 
         system_rows = []
+        score_sum = 0.0
 
         for symptom_name in chosen_list:
             meta = get_symptom_item(system_name, symptom_name)
@@ -819,6 +808,9 @@ def build_symptom_rows(
             pattern = detail.get("pattern", "")
             worse = detail.get("worse", "")
             better = detail.get("better", "")
+
+            weighted = float(meta.get("weight", 1)) * INTENSITY_WEIGHT.get(intensity, 1.0)
+            score_sum += weighted
 
             line = (
                 f"• {symptom_name}"
@@ -833,7 +825,8 @@ def build_symptom_rows(
             if meta.get("alarm"):
                 alarm_rows.append(f"{system_name}: {line}")
 
-        summary_rows.append(f"{system_name}: {len(chosen_list)} obj., {system_scores.get(system_name, 0)} pkt")
+        system_scores[system_name] = round(score_sum, 1)
+        summary_rows.append(f"{system_name}: {len(chosen_list)} obj., {round(score_sum, 1)} pkt")
         detailed_rows.append(f"<b>{system_name}</b>")
         detailed_rows.extend(system_rows)
         detailed_rows.append("")
@@ -852,31 +845,48 @@ def build_symptom_rows(
 
 
 def build_diagnosis_rows(diagnoses_selected: Dict[str, List[str]], diagnoses_other: Dict[str, str]) -> List[str]:
-    rows = []
+    rows: List[str] = []
+    nonempty_groups = 0
+
     for group_name, items in diagnoses_selected.items():
         other = diagnoses_other.get(group_name, "").strip()
         if items or other:
+            nonempty_groups += 1
             rows.append(f"<b>{group_name}</b>")
-            if items:
-                rows.append("• " + ", ".join(items))
+            for item in items:
+                rows.append(f"• {item}")
             if other:
-                rows.append(f"• Inne: {other}")
+                extra = [x.strip() for x in other.split(",") if x.strip()]
+                if extra:
+                    for x in extra:
+                        rows.append(f"• Inne: {x}")
+                else:
+                    rows.append(f"• Inne: {other}")
             rows.append("")
+
+    if nonempty_groups == 0:
+        return ["Brak zgłoszonych rozpoznań."]
     return rows
 
 
 def build_family_rows(family_selected: Dict[str, List[str]], family_other: Dict[str, str]) -> List[str]:
-    rows = []
+    rows: List[str] = []
+    nonempty_members = 0
+
     for person in FAMILY_MEMBERS:
         items = family_selected.get(person, [])
         other = family_other.get(person, "").strip()
         if items or other:
+            nonempty_members += 1
             rows.append(f"<b>{person}</b>")
-            if items:
-                rows.append("• " + ", ".join(items))
+            for item in items:
+                rows.append(f"• {item}")
             if other:
                 rows.append(f"• Inne: {other}")
             rows.append("")
+
+    if nonempty_members == 0:
+        return ["Brak istotnych obciążeń rodzinnych zgłoszonych w formularzu."]
     return rows
 
 
@@ -993,6 +1003,7 @@ def make_pdf(data: Dict[str, Any]) -> str:
         styles_dict,
     )
 
+    add_pdf_section(story, "Cel wykonania oceny zdrowia", data["sec_goal"], styles_dict)
     add_pdf_section(story, "Dane podstawowe", data["sec_basic"], styles_dict)
     add_pdf_section(story, "Ocena ogólna", data["sec_overall"], styles_dict)
     add_pdf_section(story, "Przebieg zdrowia i leki", data["sec_timeline"], styles_dict)
@@ -1047,7 +1058,6 @@ st.markdown(
     Szanowni Państwo,<br><br>
     Proszę zaznaczać tylko objawy, które rzeczywiście występują obecnie lub nawracają.<br>
     Po zaznaczeniu objawu pojawią się krótkie pola doprecyzowujące jego nasilenie i charakter.<br>
-    Na bieżąco poniżej pojawia się podsumowanie dominujących układów oraz objawów alarmowych.<br><br>
     Dane z formularza nie są zapisywane w bazie aplikacji. Po wysłaniu dokument trafia wyłącznie do lekarza w celu przygotowania wizyty.
     </div>
     """,
@@ -1059,6 +1069,18 @@ st.markdown(
 # =========================================================
 with st.expander("1. Dane podstawowe", expanded=True):
     visit_type = select_with_placeholder("Rodzaj wizyty", ["Pierwsza", "Kontrolna"], key="visit_type")
+
+    st.markdown('<div id="anchor_goal" class="field-anchor"></div>', unsafe_allow_html=True)
+    goal_of_assessment = select_with_placeholder(
+        "Cel wykonania oceny zdrowia",
+        [
+            "Ocena stanu zdrowia bez dolegliwości",
+            "Ocena stanu zdrowia, bo mam dolegliwości",
+        ],
+        key="goal_of_assessment",
+    )
+    if "goal_of_assessment" in field_errors:
+        error_box(field_errors["goal_of_assessment"])
 
     st.markdown('<div id="anchor_first_name" class="field-anchor"></div>', unsafe_allow_html=True)
     first_name = st.text_input("Imię", key="first_name")
@@ -1080,10 +1102,13 @@ with st.expander("1. Dane podstawowe", expanded=True):
     if "email" in field_errors:
         error_box(field_errors["email"])
 
-    st.markdown('<div id="anchor_birth_date" class="field-anchor"></div>', unsafe_allow_html=True)
-    birth_date_text = st.text_input("Data urodzenia", key="birth_date_text", help="Najlepiej DD.MM.RRRR")
-    if "birth_date" in field_errors:
-        error_box(field_errors["birth_date"])
+    birth_date = st.date_input(
+        "Data urodzenia",
+        min_value=date(1900, 1, 1),
+        max_value=date.today(),
+        value=date(1990, 1, 1),
+        key="birth_date",
+    )
 
     sex = select_with_placeholder("Płeć", ["kobieta", "mężczyzna", "inne"], key="sex")
     nationality = st.text_input("Narodowość", key="nationality")
@@ -1110,15 +1135,13 @@ with st.expander("1. Dane podstawowe", expanded=True):
 # 2. OCENA OGÓLNA
 # =========================================================
 with st.expander("2. Ocena ogólna", expanded=False):
-    physical_score = select_with_placeholder(
+    physical_score = st.slider(
         "Jak oceniasz swój stan fizyczny? 0 = bardzo zły, 10 = bardzo dobry",
-        [str(i) for i in range(0, 11)],
-        key="physical_score",
+        0, 10, 6, key="physical_score"
     )
-    mental_score = select_with_placeholder(
+    mental_score = st.slider(
         "Jak oceniasz swój stan psychiczny? 0 = bardzo zły, 10 = bardzo dobry",
-        [str(i) for i in range(0, 11)],
-        key="mental_score",
+        0, 10, 6, key="mental_score"
     )
     weight_change = select_with_placeholder(
         "Czy w ostatnim roku zmieniła się masa ciała?",
@@ -1170,22 +1193,20 @@ for system_name, items in SYMPTOM_GROUPS.items():
                 detail_key = f"{system_name}__{symptom_name}"
                 meta = get_symptom_item(system_name, symptom_name)
                 alarm_badge = " <span class='alarm-chip'>objaw alarmowy</span>" if meta.get("alarm") else ""
+
+                st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
                 st.markdown(f"**{symptom_name}**{alarm_badge}", unsafe_allow_html=True)
 
-                c1, c2 = st.columns(2)
-                with c1:
-                    intensity = st.selectbox(
-                        f"Nasilenie: {symptom_name}",
-                        INTENSITY_OPTIONS,
-                        key=f"intensity_{detail_key}",
-                    )
-                with c2:
-                    pattern = st.selectbox(
-                        f"Charakter: {symptom_name}",
-                        PATTERN_OPTIONS,
-                        key=f"pattern_{detail_key}",
-                    )
-
+                intensity = st.selectbox(
+                    f"Nasilenie: {symptom_name}",
+                    INTENSITY_OPTIONS,
+                    key=f"intensity_{detail_key}",
+                )
+                pattern = st.selectbox(
+                    f"Charakter: {symptom_name}",
+                    PATTERN_OPTIONS,
+                    key=f"pattern_{detail_key}",
+                )
                 since = st.text_input(
                     f"Od kiedy trwa: {symptom_name}",
                     key=f"since_{detail_key}",
@@ -1201,6 +1222,8 @@ for system_name, items in SYMPTOM_GROUPS.items():
                     key=f"better_{detail_key}",
                     placeholder="np. odpoczynek, leki, pozycja siedząca",
                 )
+
+                st.markdown("</div>", unsafe_allow_html=True)
 
                 symptom_details[detail_key] = {
                     "intensity": intensity,
@@ -1227,25 +1250,6 @@ for system_name, items in SYMPTOM_GROUPS.items():
             }
 
 # =========================================================
-# PODSUMOWANIE NA ŻYWO
-# =========================================================
-live_system_scores, live_alarm_list = compute_live_symptom_stats(selected_symptoms, symptom_details)
-dominant_live = sorted(live_system_scores.items(), key=lambda x: x[1], reverse=True)[:5]
-
-st.markdown("<div class='summary-card'>", unsafe_allow_html=True)
-st.markdown("<div class='summary-title'>Podsumowanie na bieżąco</div>", unsafe_allow_html=True)
-
-if dominant_live:
-    for idx, (name, score) in enumerate(dominant_live, start=1):
-        st.write(f"{idx}. {name}: {score} pkt")
-else:
-    st.write("Na razie nie zaznaczono objawów.")
-
-if live_alarm_list:
-    st.markdown("<div class='alarm-box'><b>Zaznaczone objawy alarmowe</b><br>" + "<br>".join(live_alarm_list) + "</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
-
-# =========================================================
 # 5. CHOROBY WSPÓŁISTNIEJĄCE / ROZPOZNANIA
 # =========================================================
 with st.expander("5. Choroby współistniejące / rozpoznania", expanded=False):
@@ -1263,6 +1267,7 @@ with st.expander("5. Choroby współistniejące / rozpoznania", expanded=False):
         other = st.text_input(
             f"Inne rozpoznania w grupie: {group_name}",
             key=f"diag_other_{group_name}",
+            placeholder="Oddziel przecinkami, jeśli wpisujesz kilka",
         )
         diagnoses_selected[group_name] = chosen
         diagnoses_other[group_name] = other
@@ -1355,36 +1360,44 @@ with st.expander("7. Styl życia, narażenia i tło zdrowotne", expanded=False):
 # =========================================================
 with st.expander("8. Ginekologia / andrologia", expanded=False):
     if sex == "kobieta":
+        st.markdown("**Sekcja ginekologiczna**")
         gyn_problems = st.text_area("Problemy ginekologiczne", key="gyn_problems", height=90)
         menstruation = st.text_area("Miesiączka, menopauza, leczenie hormonalne", key="menstruation", height=90)
         first_menses = st.text_input("Pierwsza miesiączka", key="first_menses", placeholder="np. 12 r.ż.")
-        last_menses_text = st.text_input("Data ostatniej miesiączki", key="last_menses_text", placeholder="DD.MM.RRRR")
-    else:
+        last_menses = st.date_input(
+            "Data ostatniej miesiączki",
+            value=date.today(),
+            min_value=date(1950, 1, 1),
+            max_value=date.today(),
+            key="last_menses",
+        )
+        potency = ""
+        andrology_text = ""
+    elif sex == "mężczyzna":
+        st.markdown("**Sekcja andrologiczna**")
+        potency = select_with_placeholder("Czy są problemy z erekcją?", ["nie", "czasami", "często"], key="potency")
+        andrology_text = st.text_area("Inne problemy andrologiczne", key="andrology_text", height=90)
         gyn_problems = ""
         menstruation = ""
         first_menses = ""
-        last_menses_text = ""
-
-    if sex == "mężczyzna":
-        potency = select_with_placeholder("Czy są problemy z erekcją?", ["nie", "czasami", "często"], key="potency")
-        andrology_text = st.text_area("Inne problemy andrologiczne", key="andrology_text", height=90)
+        last_menses = None
     else:
+        st.info("Sekcja pojawi się po wyborze płci kobieta albo mężczyzna.")
+        gyn_problems = ""
+        menstruation = ""
+        first_menses = ""
+        last_menses = None
         potency = ""
         andrology_text = ""
 
 # =========================================================
-# 9. WAŻNE PYTANIE DO LEKARZA
+# 9. NAJWAŻNIEJSZE PYTANIE
 # =========================================================
 with st.expander("9. Najważniejsze pytanie do lekarza", expanded=True):
     key_question = st.text_area(
         "Jakie jest najważniejsze pytanie do lekarza lub najważniejszy problem do omówienia?",
         key="key_question",
         height=120,
-    )
-    important_info = st.text_area(
-        "Czy są jeszcze jakieś ważne informacje, które chcesz przekazać lekarzowi?",
-        key="important_info",
-        height=100,
     )
 
 # =========================================================
@@ -1418,15 +1431,14 @@ Najlepiej przesłać lub wgrać jeden plik PDF z wynikami ułożonymi chronologi
 all_chosen_symptom_names = [sym for vals in selected_symptoms.values() for sym in vals]
 
 progress_values = [
-    visit_type, first_name, last_name, phone, email, birth_date_text, sex,
-    nationality, profession, current_status, height_cm_text, weight_kg_text,
+    visit_type, goal_of_assessment, first_name, last_name, phone, email, birth_date,
+    sex, nationality, profession, current_status, height_cm_text, weight_kg_text,
     physical_score, mental_score, weight_change, weight_change_amount,
-    health_timeline, current_meds,
+    health_timeline, current_meds, all_chosen_symptom_names,
     lifestyle, stimulants, stimulants_other, sleep_hours,
     travel_abroad, travel_where, animal_contact, animal_contact_details,
     major_injuries, covid, covid_details, strong_stress,
-    key_question, important_info,
-    all_chosen_symptom_names,
+    key_question,
     consent_true, consent_visit, consent_privacy
 ]
 progress_percent = calc_progress(progress_values)
@@ -1455,15 +1467,15 @@ if send_clicked:
     last_name_clean = st.session_state.get("last_name", "").strip()
     phone_raw = st.session_state.get("phone", "").strip()
     email_raw = st.session_state.get("email", "").strip()
-    birth_date_raw = st.session_state.get("birth_date_text", "").strip()
 
     validated_phone = validate_phone(phone_raw)
     validated_email = validate_email(email_raw) if email_raw else None
-    birth_date = parse_polish_date(birth_date_raw)
     full_name = f"{first_name_clean} {last_name_clean}".strip()
 
     if not visit_type:
         st.session_state.field_errors["visit_type"] = "Wybierz rodzaj wizyty."
+    if not goal_of_assessment:
+        st.session_state.field_errors["goal_of_assessment"] = "Wybierz cel oceny zdrowia."
     if not first_name_clean:
         st.session_state.field_errors["first_name"] = "Wpisz imię."
     if not last_name_clean:
@@ -1472,17 +1484,15 @@ if send_clicked:
         st.session_state.field_errors["phone"] = "Wpisz poprawny numer telefonu."
     if email_raw and not validated_email:
         st.session_state.field_errors["email"] = "Wpisz poprawny adres e-mail."
-    if not birth_date:
-        st.session_state.field_errors["birth_date"] = "Wpisz poprawną datę urodzenia w formacie DD.MM.RRRR."
     if not consent_true or not consent_visit or not consent_privacy:
         st.session_state.field_errors["consent"] = "Zaznacz wszystkie wymagane zgody."
 
     anchor_order = [
+        ("goal_of_assessment", "anchor_goal"),
         ("first_name", "anchor_first_name"),
         ("last_name", "anchor_last_name"),
         ("phone", "anchor_phone"),
         ("email", "anchor_email"),
-        ("birth_date", "anchor_birth_date"),
         ("consent", "anchor_consent"),
     ]
 
@@ -1495,7 +1505,6 @@ if send_clicked:
 
     patient_initials = initials(full_name)
     submitted_at = datetime.now().strftime("%d.%m.%Y, %H:%M")
-    last_menses = parse_polish_date(last_menses_text) if last_menses_text else None
 
     symptom_summary_rows, symptom_detail_rows, alarm_rows, system_scores = build_symptom_rows(
         selected_symptoms=selected_symptoms,
@@ -1522,9 +1531,10 @@ if send_clicked:
     pdf_data = {
         "initials": patient_initials,
         "phone": validated_phone,
-        "birth_date": birth_date.strftime("%d.%m.%Y") if birth_date else "",
+        "birth_date": birth_date.strftime("%d.%m.%Y"),
         "visit_type": visit_type,
         "submitted_at": submitted_at,
+        "sec_goal": [goal_of_assessment],
         "sec_basic": [
             f"Płeć: {sex}" if nonempty(sex) else "",
             f"Narodowość: {nationality}" if nonempty(nationality) else "",
@@ -1536,15 +1546,14 @@ if send_clicked:
             f"Adres e-mail: {validated_email}" if validated_email else "",
         ],
         "sec_overall": [
-            f"Ocena stanu fizycznego: {physical_score}/10" if nonempty(physical_score) else "",
-            f"Ocena stanu psychicznego: {mental_score}/10" if nonempty(mental_score) else "",
+            f"Ocena stanu fizycznego: {physical_score}/10",
+            f"Ocena stanu psychicznego: {mental_score}/10",
             f"Zmiana masy ciała: {weight_change}" + (f", {weight_change_amount}" if nonempty(weight_change_amount) else "") if nonempty(weight_change) else "",
         ],
         "sec_timeline": [
             f"Chronologia zdrowia: {health_timeline}" if nonempty(health_timeline) else "",
             "Aktualnie przyjmowane leki:" if nonempty(current_meds) else "",
             *lines_from_text(current_meds),
-            f"Ważne informacje dodatkowe: {important_info}" if nonempty(important_info) else "",
         ],
         "sec_symptom_summary": symptom_summary_rows,
         "sec_alarm": alarm_rows if alarm_rows else ["Brak zaznaczonych objawów alarmowych."],
@@ -1573,8 +1582,9 @@ if send_clicked:
 Imię i nazwisko: {full_name}
 Telefon kontaktowy: {validated_phone}
 Adres e-mail: {validated_email or ""}
-Data urodzenia: {birth_date.strftime("%d.%m.%Y") if birth_date else ""}
+Data urodzenia: {birth_date.strftime("%d.%m.%Y")}
 Rodzaj wizyty: {visit_type}
+Cel wykonania oceny zdrowia: {goal_of_assessment}
 Data i godzina wypełnienia formularza: {submitted_at}
 Liczba układów z objawami: {sum(1 for x in system_scores.values() if x > 0)}
 Zgoda na kontakt organizacyjny: {"tak" if contact_consent else "nie"}
