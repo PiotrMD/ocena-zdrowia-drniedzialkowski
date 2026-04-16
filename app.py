@@ -217,14 +217,7 @@ EMAIL_ODBIORCA2 = get_secret("EMAIL_ODBIORCA2")
 # =========================================================
 # KONFIGURACJA MEDYCZNA
 # =========================================================
-INTENSITY_OPTIONS = ["lekkie", "umiarkowane", "duże"]
 PATTERN_OPTIONS = ["stały", "napadowy", "trudno powiedzieć"]
-
-INTENSITY_WEIGHT = {
-    "lekkie": 1.0,
-    "umiarkowane": 1.5,
-    "duże": 2.0,
-}
 
 SYMPTOM_GROUPS: Dict[str, List[Dict[str, Any]]] = {
     "Objawy ogólne / systemowe": [
@@ -782,20 +775,17 @@ def build_symptom_rows(
             detail_key = f"{system_name}__{symptom_name}"
             detail = symptom_details.get(detail_key, {})
 
-            intensity = detail.get("intensity", "lekkie")
             since = detail.get("since", "")
             pattern = detail.get("pattern", "")
             worse = detail.get("worse", "")
             better = detail.get("better", "")
             typed_other = detail.get("typed_other", "")
 
-            weighted = float(meta.get("weight", 1)) * INTENSITY_WEIGHT.get(intensity, 1.0)
-            score_sum += weighted
+            score_sum += float(meta.get("weight", 1))
 
             if symptom_name == "Inne objawy":
                 line = (
                     f"• Inne objawy: {typed_other}"
-                    f"{f' | nasilenie: {intensity}' if intensity else ''}"
                     f"{f' | od: {since}' if since else ''}"
                     f"{f' | charakter: {pattern}' if pattern else ''}"
                     f"{f' | nasila: {worse}' if worse else ''}"
@@ -804,7 +794,6 @@ def build_symptom_rows(
             else:
                 line = (
                     f"• {symptom_name}"
-                    f" | nasilenie: {intensity}"
                     f"{f' | od: {since}' if since else ''}"
                     f"{f' | charakter: {pattern}' if pattern else ''}"
                     f"{f' | nasila: {worse}' if worse else ''}"
@@ -817,7 +806,7 @@ def build_symptom_rows(
                 alarm_rows.append(f"{system_name}: {line}")
 
         system_scores[system_name] = round(score_sum, 1)
-        summary_rows.append(f"{system_name}: {len(chosen_list)} obj., {round(score_sum, 1)} pkt")
+        summary_rows.append(f"{system_name}: {len(chosen_list)} obj.")
         detailed_rows.append(f"<b>{system_name}</b>")
         detailed_rows.extend(system_rows)
         detailed_rows.append("")
@@ -1048,7 +1037,7 @@ st.markdown(
     <div class="top-card">
     Szanowni Państwo,<br><br>
     Proszę zaznaczać tylko objawy, które rzeczywiście występują obecnie lub nawracają.<br>
-    Po zaznaczeniu objawu pojawią się krótkie pola doprecyzowujące jego nasilenie i charakter.<br>
+    Po zaznaczeniu objawu pojawią się krótkie pola doprecyzowujące jego charakter i czas trwania.<br>
     Dane z formularza nie są zapisywane w bazie aplikacji. Po wysłaniu dokument trafia wyłącznie do lekarza w celu przygotowania wizyty.
     </div>
     """,
@@ -1061,7 +1050,6 @@ st.markdown(
 with st.expander("1. Dane podstawowe", expanded=True):
     visit_type = select_with_placeholder("Rodzaj wizyty", ["Pierwsza", "Kontrolna"], key="visit_type")
 
-    st.markdown('<div id="anchor_goal" class="field-anchor"></div>', unsafe_allow_html=True)
     goal_of_assessment = select_with_placeholder(
         "Cel wykonania oceny zdrowia",
         [
@@ -1070,8 +1058,6 @@ with st.expander("1. Dane podstawowe", expanded=True):
         ],
         key="goal_of_assessment",
     )
-    if "goal_of_assessment" in field_errors:
-        error_box(field_errors["goal_of_assessment"])
 
     st.markdown('<div id="anchor_first_name" class="field-anchor"></div>', unsafe_allow_html=True)
     first_name = st.text_input("Imię", key="first_name")
@@ -1204,12 +1190,6 @@ for system_name, items in SYMPTOM_GROUPS.items():
             st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
             st.markdown(f"**{symptom_name}**{alarm_badge}", unsafe_allow_html=True)
 
-            intensity = st.radio(
-                f"Nasilenie: {symptom_name}",
-                INTENSITY_OPTIONS,
-                key=f"intensity_{detail_key}",
-                horizontal=True,
-            )
             pattern = st.radio(
                 f"Charakter: {symptom_name}",
                 PATTERN_OPTIONS,
@@ -1235,7 +1215,6 @@ for system_name, items in SYMPTOM_GROUPS.items():
             st.markdown("</div>", unsafe_allow_html=True)
 
             symptom_details[detail_key] = {
-                "intensity": intensity,
                 "pattern": pattern,
                 "since": since.strip(),
                 "worse": worse.strip(),
@@ -1250,14 +1229,7 @@ for system_name, items in SYMPTOM_GROUPS.items():
 
             st.markdown("#### Szczegóły innych objawów")
             st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
-            st.markdown("**Inne objawy**", unsafe_allow_html=True)
 
-            other_intensity = st.radio(
-                f"Nasilenie: inne objawy ({system_name})",
-                INTENSITY_OPTIONS,
-                key=f"intensity_{detail_key}",
-                horizontal=True,
-            )
             other_pattern = st.radio(
                 f"Charakter: inne objawy ({system_name})",
                 PATTERN_OPTIONS,
@@ -1283,7 +1255,6 @@ for system_name, items in SYMPTOM_GROUPS.items():
             st.markdown("</div>", unsafe_allow_html=True)
 
             symptom_details[detail_key] = {
-                "intensity": other_intensity,
                 "pattern": other_pattern,
                 "since": other_since.strip(),
                 "worse": other_worse.strip(),
@@ -1514,10 +1485,6 @@ if send_clicked:
     validated_email = validate_email(email_raw) if email_raw else None
     full_name = f"{first_name_clean} {last_name_clean}".strip()
 
-    if not visit_type:
-        st.session_state.field_errors["visit_type"] = "Wybierz rodzaj wizyty."
-    if not goal_of_assessment:
-        st.session_state.field_errors["goal_of_assessment"] = "Wybierz cel oceny zdrowia."
     if not first_name_clean:
         st.session_state.field_errors["first_name"] = "Wpisz imię."
     if not last_name_clean:
@@ -1530,7 +1497,6 @@ if send_clicked:
         st.session_state.field_errors["consent"] = "Zaznacz wszystkie wymagane zgody."
 
     anchor_order = [
-        ("goal_of_assessment", "anchor_goal"),
         ("first_name", "anchor_first_name"),
         ("last_name", "anchor_last_name"),
         ("phone", "anchor_phone"),
