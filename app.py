@@ -37,16 +37,6 @@ st.markdown(
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    html, body, [class*="css"] {
-        background-color: #f5f7fb;
-        color: #0f172a;
-    }
-
-    .stApp {
-        background: #f5f7fb;
-        color: #0f172a;
-    }
-
     .main .block-container {
         max-width: 980px;
         padding-top: 0.65rem;
@@ -56,30 +46,26 @@ st.markdown(
     .top-card {
         padding: 18px 18px;
         border-radius: 18px;
-        border: 1px solid #d7deea;
+        border: 1px solid rgba(120,120,120,0.22);
         margin-bottom: 16px;
-        background: #ffffff;
-        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
-        color: #0f172a;
+        background: rgba(250,250,250,0.03);
     }
 
     .title-main {
         text-align: center;
-        font-size: 2.0rem;
+        font-size: 2.1rem;
         font-weight: 800;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.04em;
         margin-top: 0.1rem;
         margin-bottom: 0.1rem;
-        color: #123b6d;
     }
 
     .title-sub {
         text-align: center;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
         margin-top: 0;
         margin-bottom: 0.35rem;
-        color: #264d7f;
     }
 
     .doctor-line {
@@ -87,7 +73,6 @@ st.markdown(
         font-size: 1rem;
         margin-top: 0;
         margin-bottom: 0.4rem;
-        color: #334155;
     }
 
     .site-line {
@@ -96,7 +81,6 @@ st.markdown(
         margin-top: 0;
         margin-bottom: 0.2rem;
         font-weight: 700;
-        color: #123b6d;
     }
 
     .contact-line {
@@ -104,17 +88,15 @@ st.markdown(
         font-size: 0.95rem;
         margin-top: 0;
         margin-bottom: 1rem;
-        color: #475569;
     }
 
     .progress-box {
         padding: 12px 14px;
         border-radius: 14px;
-        border: 1px solid #d7deea;
+        border: 1px solid rgba(120,120,120,0.22);
         margin-top: 6px;
         margin-bottom: 16px;
-        background: #ffffff;
-        color: #0f172a;
+        background: rgba(250,250,250,0.02);
     }
 
     .send-button > button {
@@ -123,14 +105,6 @@ st.markdown(
         font-size: 1.05rem;
         font-weight: 700;
         border-radius: 12px;
-        background: #1d4ed8 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-    .send-button > button:hover {
-        background: #1e40af !important;
-        color: white !important;
     }
 
     .field-anchor {
@@ -144,7 +118,7 @@ st.markdown(
         border-radius: 10px;
         padding: 10px 12px;
         color: #d93025;
-        background: #fff1f0;
+        background: rgba(217, 48, 37, 0.06);
         font-weight: 600;
         margin-top: -0.15rem;
         margin-bottom: 0.9rem;
@@ -152,7 +126,7 @@ st.markdown(
 
     .section-note {
         font-size: 0.94rem;
-        color: #475569;
+        opacity: 0.9;
         margin-top: -0.1rem;
         margin-bottom: 0.7rem;
     }
@@ -163,15 +137,15 @@ st.markdown(
         border-radius: 999px;
         font-size: 0.82rem;
         font-weight: 700;
-        color: #b42318;
-        background: #fee4e2;
-        border: 1px solid #fda29b;
+        color: #ffb4ab;
+        background: rgba(217, 48, 37, 0.12);
+        border: 1px solid rgba(217, 48, 37, 0.35);
         margin-left: 8px;
     }
 
     .symptom-card {
-        border: 1px solid #dbe4f0;
-        background: #f8fbff;
+        border: 1px solid rgba(120,120,120,0.22);
+        background: rgba(250,250,250,0.03);
         border-radius: 14px;
         padding: 12px;
         margin-top: 10px;
@@ -179,152 +153,13 @@ st.markdown(
     }
 
     .alarm-box {
-        border: 1px solid #fda29b;
-        background: #fff6f5;
-        color: #b42318;
+        border: 1px solid rgba(217, 48, 37, 0.35);
+        background: rgba(217, 48, 37, 0.08);
+        color: #ffb4ab;
         border-radius: 14px;
         padding: 12px 14px;
         margin-top: 8px;
         margin-bottom: 12px;
-    }
-
-    div[data-testid="stExpander"] {
-        background: #ffffff;
-        border: 1px solid #d7deea;
-        border-radius: 14px;
-        margin-bottom: 12px;
-        overflow: hidden;
-    }
-
-    /* Nagłówki expanderów */
-    div[data-testid="stExpander"] summary {
-        background: #ffffff !important;
-        color: #0f172a !important;
-    }
-
-    div[data-testid="stExpander"] summary:hover {
-        background: #f8fafc !important;
-    }
-
-    /* Etykiety formularza */
-    .stTextInput label,
-    .stTextArea label,
-    .stDateInput label,
-    .stSelectbox label,
-    .stMultiSelect label,
-    .stRadio label,
-    .stCheckbox label,
-    .stSlider label,
-    .stMarkdown,
-    .stCaption,
-    p, span, div {
-        color: #0f172a;
-    }
-
-    /* INPUTY I TEXTAREA */
-    .stTextInput input,
-    .stTextArea textarea,
-    .stDateInput input,
-    .stNumberInput input {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-        caret-color: #0f172a !important;
-    }
-
-    .stTextInput input::placeholder,
-    .stTextArea textarea::placeholder,
-    .stDateInput input::placeholder,
-    .stNumberInput input::placeholder {
-        color: #64748b !important;
-        opacity: 1 !important;
-    }
-
-    .stTextInput input:focus,
-    .stTextArea textarea:focus,
-    .stDateInput input:focus,
-    .stNumberInput input:focus {
-        border: 1px solid #3b82f6 !important;
-        box-shadow: 0 0 0 1px #3b82f6 !important;
-    }
-
-    /* SELECTBOX I MULTISELECT - pole zamknięte */
-    .stSelectbox [data-baseweb="select"] > div,
-    .stMultiSelect [data-baseweb="select"] > div {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-    }
-
-    .stSelectbox [data-baseweb="select"] span,
-    .stMultiSelect [data-baseweb="select"] span,
-    .stSelectbox [data-baseweb="select"] div,
-    .stMultiSelect [data-baseweb="select"] div {
-        color: #0f172a !important;
-    }
-
-    /* Tagi w multiselect */
-    .stMultiSelect [data-baseweb="tag"] {
-        background: #e8f0fe !important;
-        color: #123b6d !important;
-        border-radius: 999px !important;
-        border: 1px solid #bfdbfe !important;
-    }
-
-    .stMultiSelect [data-baseweb="tag"] span {
-        color: #123b6d !important;
-    }
-
-    /* Dropdowny po rozwinięciu */
-    div[role="listbox"] {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-    }
-
-    div[role="option"] {
-        background: #ffffff !important;
-        color: #0f172a !important;
-    }
-
-    div[role="option"]:hover {
-        background: #eff6ff !important;
-        color: #0f172a !important;
-    }
-
-    /* Date picker ikonka */
-    .stDateInput button {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: none !important;
-    }
-
-    /* Radio */
-    .stRadio div[role="radiogroup"] label {
-        color: #0f172a !important;
-    }
-
-    /* Checkbox */
-    .stCheckbox label {
-        color: #0f172a !important;
-    }
-
-    /* Slider */
-    .stSlider * {
-        color: #0f172a !important;
-    }
-
-    /* Help text */
-    [data-testid="stTooltipHoverTarget"] {
-        color: #475569 !important;
-    }
-
-    /* Success, info, warning */
-    [data-testid="stAlertContainer"] {
-        color: #0f172a !important;
     }
 
     @media (max-width: 768px) {
@@ -335,11 +170,11 @@ st.markdown(
         }
 
         .title-main {
-            font-size: 1.5rem;
+            font-size: 1.55rem;
         }
 
         .title-sub {
-            font-size: 0.98rem;
+            font-size: 1rem;
         }
 
         .doctor-line, .site-line, .contact-line {
@@ -349,13 +184,6 @@ st.markdown(
         .symptom-card {
             padding: 10px;
             border-radius: 12px;
-        }
-
-        .stTextInput input,
-        .stTextArea textarea,
-        .stDateInput input,
-        .stNumberInput input {
-            font-size: 16px !important;
         }
     }
     </style>
