@@ -39,10 +39,12 @@ st.markdown(
 
     html, body, [class*="css"] {
         background-color: #f5f7fb;
+        color: #0f172a;
     }
 
     .stApp {
         background: #f5f7fb;
+        color: #0f172a;
     }
 
     .main .block-container {
@@ -58,6 +60,7 @@ st.markdown(
         margin-bottom: 16px;
         background: #ffffff;
         box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+        color: #0f172a;
     }
 
     .title-main {
@@ -111,6 +114,7 @@ st.markdown(
         margin-top: 6px;
         margin-bottom: 16px;
         background: #ffffff;
+        color: #0f172a;
     }
 
     .send-button > button {
@@ -119,14 +123,14 @@ st.markdown(
         font-size: 1.05rem;
         font-weight: 700;
         border-radius: 12px;
-        background: #1d4ed8;
-        color: white;
-        border: none;
+        background: #1d4ed8 !important;
+        color: white !important;
+        border: none !important;
     }
 
     .send-button > button:hover {
-        background: #1e40af;
-        color: white;
+        background: #1e40af !important;
+        color: white !important;
     }
 
     .field-anchor {
@@ -165,6 +169,15 @@ st.markdown(
         margin-left: 8px;
     }
 
+    .symptom-card {
+        border: 1px solid #dbe4f0;
+        background: #f8fbff;
+        border-radius: 14px;
+        padding: 12px;
+        margin-top: 10px;
+        margin-bottom: 14px;
+    }
+
     .alarm-box {
         border: 1px solid #fda29b;
         background: #fff6f5;
@@ -180,6 +193,138 @@ st.markdown(
         border: 1px solid #d7deea;
         border-radius: 14px;
         margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    /* Nagłówki expanderów */
+    div[data-testid="stExpander"] summary {
+        background: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    div[data-testid="stExpander"] summary:hover {
+        background: #f8fafc !important;
+    }
+
+    /* Etykiety formularza */
+    .stTextInput label,
+    .stTextArea label,
+    .stDateInput label,
+    .stSelectbox label,
+    .stMultiSelect label,
+    .stRadio label,
+    .stCheckbox label,
+    .stSlider label,
+    .stMarkdown,
+    .stCaption,
+    p, span, div {
+        color: #0f172a;
+    }
+
+    /* INPUTY I TEXTAREA */
+    .stTextInput input,
+    .stTextArea textarea,
+    .stDateInput input,
+    .stNumberInput input {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        caret-color: #0f172a !important;
+    }
+
+    .stTextInput input::placeholder,
+    .stTextArea textarea::placeholder,
+    .stDateInput input::placeholder,
+    .stNumberInput input::placeholder {
+        color: #64748b !important;
+        opacity: 1 !important;
+    }
+
+    .stTextInput input:focus,
+    .stTextArea textarea:focus,
+    .stDateInput input:focus,
+    .stNumberInput input:focus {
+        border: 1px solid #3b82f6 !important;
+        box-shadow: 0 0 0 1px #3b82f6 !important;
+    }
+
+    /* SELECTBOX I MULTISELECT - pole zamknięte */
+    .stSelectbox [data-baseweb="select"] > div,
+    .stMultiSelect [data-baseweb="select"] > div {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+    }
+
+    .stSelectbox [data-baseweb="select"] span,
+    .stMultiSelect [data-baseweb="select"] span,
+    .stSelectbox [data-baseweb="select"] div,
+    .stMultiSelect [data-baseweb="select"] div {
+        color: #0f172a !important;
+    }
+
+    /* Tagi w multiselect */
+    .stMultiSelect [data-baseweb="tag"] {
+        background: #e8f0fe !important;
+        color: #123b6d !important;
+        border-radius: 999px !important;
+        border: 1px solid #bfdbfe !important;
+    }
+
+    .stMultiSelect [data-baseweb="tag"] span {
+        color: #123b6d !important;
+    }
+
+    /* Dropdowny po rozwinięciu */
+    div[role="listbox"] {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+    }
+
+    div[role="option"] {
+        background: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    div[role="option"]:hover {
+        background: #eff6ff !important;
+        color: #0f172a !important;
+    }
+
+    /* Date picker ikonka */
+    .stDateInput button {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: none !important;
+    }
+
+    /* Radio */
+    .stRadio div[role="radiogroup"] label {
+        color: #0f172a !important;
+    }
+
+    /* Checkbox */
+    .stCheckbox label {
+        color: #0f172a !important;
+    }
+
+    /* Slider */
+    .stSlider * {
+        color: #0f172a !important;
+    }
+
+    /* Help text */
+    [data-testid="stTooltipHoverTarget"] {
+        color: #475569 !important;
+    }
+
+    /* Success, info, warning */
+    [data-testid="stAlertContainer"] {
+        color: #0f172a !important;
     }
 
     @media (max-width: 768px) {
@@ -199,6 +344,18 @@ st.markdown(
 
         .doctor-line, .site-line, .contact-line {
             font-size: 0.9rem;
+        }
+
+        .symptom-card {
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .stTextInput input,
+        .stTextArea textarea,
+        .stDateInput input,
+        .stNumberInput input {
+            font-size: 16px !important;
         }
     }
     </style>
@@ -625,10 +782,7 @@ def validate_phone(raw: str) -> Optional[str]:
     if not text:
         return None
     cleaned = text.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
-    if cleaned.startswith("+"):
-        digits = cleaned[1:]
-    else:
-        digits = cleaned
+    digits = cleaned[1:] if cleaned.startswith("+") else cleaned
     if not digits.isdigit():
         return None
     if len(digits) < 7 or len(digits) > 15:
@@ -834,31 +988,48 @@ def build_symptom_rows(
 
 
 def build_diagnosis_rows(diagnoses_selected: Dict[str, List[str]], diagnoses_other: Dict[str, str]) -> List[str]:
-    rows = []
+    rows: List[str] = []
+    nonempty_groups = 0
+
     for group_name, items in diagnoses_selected.items():
         other = diagnoses_other.get(group_name, "").strip()
         if items or other:
+            nonempty_groups += 1
             rows.append(f"<b>{group_name}</b>")
-            if items:
-                rows.append("• " + ", ".join(items))
+            for item in items:
+                rows.append(f"• {item}")
             if other:
-                rows.append(f"• Inne: {other}")
+                extra = [x.strip() for x in other.split(",") if x.strip()]
+                if extra:
+                    for x in extra:
+                        rows.append(f"• Inne: {x}")
+                else:
+                    rows.append(f"• Inne: {other}")
             rows.append("")
+
+    if nonempty_groups == 0:
+        return ["Brak zgłoszonych rozpoznań."]
     return rows
 
 
 def build_family_rows(family_selected: Dict[str, List[str]], family_other: Dict[str, str]) -> List[str]:
-    rows = []
+    rows: List[str] = []
+    nonempty_members = 0
+
     for person in FAMILY_MEMBERS:
         items = family_selected.get(person, [])
         other = family_other.get(person, "").strip()
         if items or other:
+            nonempty_members += 1
             rows.append(f"<b>{person}</b>")
-            if items:
-                rows.append("• " + ", ".join(items))
+            for item in items:
+                rows.append(f"• {item}")
             if other:
                 rows.append(f"• Inne: {other}")
             rows.append("")
+
+    if nonempty_members == 0:
+        return ["Brak istotnych obciążeń rodzinnych zgłoszonych w formularzu."]
     return rows
 
 
@@ -1042,6 +1213,7 @@ st.markdown(
 with st.expander("1. Dane podstawowe", expanded=True):
     visit_type = select_with_placeholder("Rodzaj wizyty", ["Pierwsza", "Kontrolna"], key="visit_type")
 
+    st.markdown('<div id="anchor_goal" class="field-anchor"></div>', unsafe_allow_html=True)
     goal_of_assessment = select_with_placeholder(
         "Cel wykonania oceny zdrowia",
         [
@@ -1050,6 +1222,8 @@ with st.expander("1. Dane podstawowe", expanded=True):
         ],
         key="goal_of_assessment",
     )
+    if "goal_of_assessment" in field_errors:
+        error_box(field_errors["goal_of_assessment"])
 
     st.markdown('<div id="anchor_first_name" class="field-anchor"></div>', unsafe_allow_html=True)
     first_name = st.text_input("Imię", key="first_name")
@@ -1071,7 +1245,6 @@ with st.expander("1. Dane podstawowe", expanded=True):
     if "email" in field_errors:
         error_box(field_errors["email"])
 
-    st.markdown('<div id="anchor_birth_date" class="field-anchor"></div>', unsafe_allow_html=True)
     birth_date = st.date_input(
         "Data urodzenia",
         min_value=date(1900, 1, 1),
@@ -1163,22 +1336,20 @@ for system_name, items in SYMPTOM_GROUPS.items():
                 detail_key = f"{system_name}__{symptom_name}"
                 meta = get_symptom_item(system_name, symptom_name)
                 alarm_badge = " <span class='alarm-chip'>objaw alarmowy</span>" if meta.get("alarm") else ""
+
+                st.markdown("<div class='symptom-card'>", unsafe_allow_html=True)
                 st.markdown(f"**{symptom_name}**{alarm_badge}", unsafe_allow_html=True)
 
-                c1, c2 = st.columns(2)
-                with c1:
-                    intensity = st.selectbox(
-                        f"Nasilenie: {symptom_name}",
-                        INTENSITY_OPTIONS,
-                        key=f"intensity_{detail_key}",
-                    )
-                with c2:
-                    pattern = st.selectbox(
-                        f"Charakter: {symptom_name}",
-                        PATTERN_OPTIONS,
-                        key=f"pattern_{detail_key}",
-                    )
-
+                intensity = st.selectbox(
+                    f"Nasilenie: {symptom_name}",
+                    INTENSITY_OPTIONS,
+                    key=f"intensity_{detail_key}",
+                )
+                pattern = st.selectbox(
+                    f"Charakter: {symptom_name}",
+                    PATTERN_OPTIONS,
+                    key=f"pattern_{detail_key}",
+                )
                 since = st.text_input(
                     f"Od kiedy trwa: {symptom_name}",
                     key=f"since_{detail_key}",
@@ -1194,6 +1365,8 @@ for system_name, items in SYMPTOM_GROUPS.items():
                     key=f"better_{detail_key}",
                     placeholder="np. odpoczynek, leki, pozycja siedząca",
                 )
+
+                st.markdown("</div>", unsafe_allow_html=True)
 
                 symptom_details[detail_key] = {
                     "intensity": intensity,
@@ -1237,6 +1410,7 @@ with st.expander("5. Choroby współistniejące / rozpoznania", expanded=False):
         other = st.text_input(
             f"Inne rozpoznania w grupie: {group_name}",
             key=f"diag_other_{group_name}",
+            placeholder="Oddziel przecinkami, jeśli wpisujesz kilka",
         )
         diagnoses_selected[group_name] = chosen
         diagnoses_other[group_name] = other
@@ -1457,6 +1631,7 @@ if send_clicked:
         st.session_state.field_errors["consent"] = "Zaznacz wszystkie wymagane zgody."
 
     anchor_order = [
+        ("goal_of_assessment", "anchor_goal"),
         ("first_name", "anchor_first_name"),
         ("last_name", "anchor_last_name"),
         ("phone", "anchor_phone"),
